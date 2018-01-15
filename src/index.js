@@ -27,12 +27,14 @@ const opcodes = {
 	MARK: 0x28, // (
 	NONE: 0x4e, // N
 	BININT: 0x4a, // J
+	BINFLOAT: 0X47, // G
 	SHORT_BINUNICODE: 0x8c,
 	BINUNICODE: 0x58, // X
 	APPEND: 0x61, // a
 	APPENDS: 0x65, // e
 	SETITEM: 0x73, // s
 	SETITEMS: 0x75, // u
+	TUPLE2: 0x86,
 	STOP: 0x2e, // .
 }
 
@@ -73,6 +75,11 @@ const operators = {
 	BININT (state) {
 		const value = state.buffer.readUInt32LE(state.position)
 		state.position += 4
+		state.stack.push(value)
+	},
+	BINFLOAT (state) {
+		const value = state.buffer.readDoubleBE(state.position)
+		state.position += 8
 		state.stack.push(value)
 	},
 	SHORT_BINUNICODE (state) {
@@ -119,6 +126,11 @@ const operators = {
 			items[key] = value
 		}
 		Object.assign(state.stack[state.stack.length - 1], items)
+	},
+	TUPLE2 (state) {
+		const value2 = state.stack.pop()
+		const value1 = state.stack.pop()
+		state.stack.push([value1, value2])
 	},
 	STOP (state) {
 		state.stopped = true
