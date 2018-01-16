@@ -1,20 +1,6 @@
 export default function unpickle (buffer) {
-	const state = {
-		buffer: buffer,
-		position: 0,
-		stack: [],
-		memos: [],
-		stopped: false,
-	}
-	while (!state.stopped) {
-		const opcode = state.buffer[state.position++]
-		const operatorName = operatorNameForOpcode[opcode]
-		if (!operatorName) {
-			throw new Error('Unknown opcode: 0x' + opcode.toString(16))
-		}
-		operators[operatorName](state)
-	}
-	return state.stack[0]
+	const state = new State(buffer)
+	return state.parse()
 }
 
 const opcodes = {
@@ -38,102 +24,143 @@ const opcodes = {
 	STOP: 0x2e, // .
 }
 
-const operatorNameForOpcode = {}
-for (const operatorName of Object.keys(opcodes)) {
-	operatorNameForOpcode[opcodes[operatorName]] = operatorName
-}
+const operatorNameForOpcode = (function reverseMap (map) {
+	let revMap = {}
+	for (const key of Object.keys(map)) {
+		revMap[map[key]] = key
+	}
+	return revMap
+})(opcodes)
 
 const mark = Object()
 
-const operators = {
-	PROTO (state) {
-		state.position++
-	},
-	FRAME (state) {
-		state.position += 8
-	},
-	EMPTY_LIST (state) {
-		state.stack.push([])
-	},
-	EMPTY_DICT (state) {
-		state.stack.push({})
-	},
-	MEMOIZE (state) {
-		state.memos.push(state.stack[state.stack.length - 1])
-	},
-	BINGET (state) {
-		const memoPos = state.buffer[state.position++]
-		const memo = state.memos[memoPos]
-		state.stack.push(memo)
-	},
-	MARK (state) {
-		state.stack.push(mark)
-	},
-	NONE (state) {
-		state.stack.push(null)
-	},
-	BININT (state) {
-		const value = state.buffer.readUInt32LE(state.position)
-		state.position += 4
-		state.stack.push(value)
-	},
-	BINFLOAT (state) {
-		const value = state.buffer.readDoubleBE(state.position)
-		state.position += 8
-		state.stack.push(value)
-	},
-	SHORT_BINUNICODE (state) {
-		const len = state.buffer.readUInt8(state.position++)
-		const str = state.buffer.slice(state.position, state.position + len).toString()
-		state.position += len
-		state.stack.push(str)
-	},
-	BINUNICODE (state) {
-		const len = state.buffer.readUInt32LE(state.position)
-		state.position += 4
-		const str = state.buffer.slice(state.position, state.position + len).toString()
-		state.position += len
-		state.stack.push(str)
-	},
-	APPEND (state) {
-		const value = state.stack.pop()
-		state.stack[state.stack.length - 1].push(value)
-	},
-	APPENDS (state) {
+class State {
+
+	constructor (buffer) {
+		this.buffer = buffer
+		this.position = 0
+		this.stack = []
+		this.memos = []
+		this.stopped = false
+	}
+
+	parse () {
+		while (!this.stopped) {
+			const opcode = this.buffer[this.position++]
+			const operatorName = operatorNameForOpcode[opcode]
+			if (!operatorName) {
+				throw new Error('Unknown opcode: 0x' + opcode.toString(16))
+			}
+			this[operatorName]()
+		}
+		return this.stack[0]
+	}
+
+	PROTO () {
+		this.position++
+	}
+
+	FRAME () {
+		this.position += 8
+	}
+
+	EMPTY_LIST () {
+		this.stack.push([])
+	}
+
+	EMPTY_DICT () {
+		this.stack.push({})
+	}
+
+	MEMOIZE () {
+		this.memos.push(this.stack[this.stack.length - 1])
+	}
+
+	BINGET () {
+		const memoPos = this.buffer[this.position++]
+		const memo = this.memos[memoPos]
+		this.stack.push(memo)
+	}
+
+	MARK () {
+		this.stack.push(mark)
+	}
+
+	NONE () {
+		this.stack.push(null)
+	}
+
+	BININT () {
+		const value = this.buffer.readUInt32LE(this.position)
+		this.position += 4
+		this.stack.push(value)
+	}
+
+	BINFLOAT () {
+		const value = this.buffer.readDoubleBE(this.position)
+		this.position += 8
+		this.stack.push(value)
+	}
+
+	SHORT_BINUNICODE () {
+		const len = this.buffer.readUInt8(this.position++)
+		const str = this.buffer.slice(this.position, this.position + len).toString()
+		this.position += len
+		this.stack.push(str)
+	}
+
+	BINUNICODE () {
+		const len = this.buffer.readUInt32LE(this.position)
+		this.position += 4
+		const str = this.buffer.slice(this.position, this.position + len).toString()
+		this.position += len
+		this.stack.push(str)
+	}
+
+	APPEND () {
+		const value = this.stack.pop()
+		this.stack[this.stack.length - 1].push(value)
+	}
+
+	APPENDS () {
 		const items = []
 		for (;;) {
-			const value = state.stack.pop()
+			const value = this.stack.pop()
 			if (value === mark) {
 				break
 			}
 			items.push(value)
 		}
-		state.stack.push(state.stack.pop().concat(items))
-	},
-	SETITEM (state) {
-		const value = state.stack.pop()
-		const key = state.stack.pop()
-		state.stack[state.stack.length - 1][key] = value
-	},
-	SETITEMS (state) {
+		this.stack.push(this.stack.pop().concat(items))
+	}
+
+	SETITEM () {
+		const value = this.stack.pop()
+		const key = this.stack.pop()
+		this.stack[this.stack.length - 1][key] = value
+	}
+
+	SETITEMS () {
 		const items = {}
 		for (;;) {
-			const value = state.stack.pop()
+			const value = this.stack.pop()
 			if (value === mark) {
 				break
 			}
-			const key = state.stack.pop()
+			const key = this.stack.pop()
 			items[key] = value
 		}
-		Object.assign(state.stack[state.stack.length - 1], items)
-	},
-	TUPLE2 (state) {
-		const value2 = state.stack.pop()
-		const value1 = state.stack.pop()
-		state.stack.push([value1, value2])
-	},
-	STOP (state) {
-		state.stopped = true
-	},
+		Object.assign(this.stack[this.stack.length - 1], items)
+	}
+
+	TUPLE2 () {
+		const value2 = this.stack.pop()
+		const value1 = this.stack.pop()
+		this.stack.push([value1, value2])
+	}
+
+	STOP () {
+		this.stopped = true
+	}
 }
 
