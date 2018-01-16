@@ -1,6 +1,6 @@
 {
   "name": "unpickle",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Unpickle Python 3.5 (protocol 4) data",
   "main": "dist/bundle.umd.js",
   "module": "src/index.js",
