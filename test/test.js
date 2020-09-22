@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const unpickle = require('..')
+const unpickle = require('..').unpickle;
 
 require('./setup')
 
