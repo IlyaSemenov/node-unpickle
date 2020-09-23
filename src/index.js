@@ -4,12 +4,12 @@ Modified version of https://github.com/IlyaSemenov/node-unpickle
 improve fail2ban compatibility
 */
 
-module.exports.unpickle=function (buffer) {
+module.exports.parse=function (buffer) {
 	const state = new State(buffer)
 	return state.parse()
 };
 
-module.exports.pickle=require('./pickle.js');
+module.exports.dump=require('./pickle.js');
 const opcodes=require('./opcodes.js');
 
 const reduceTypes={
