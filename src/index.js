@@ -9,31 +9,8 @@ module.exports.unpickle=function (buffer) {
 	return state.parse()
 };
 
-const opcodes = {
-	PROTO: 0x80,
-	FRAME: 0x95,
-	EMPTY_LIST: 0x5d, // ]
-	EMPTY_DICT: 0x7d, // }
-	REDUCE:0x52, //R
-	MEMOIZE: 0x94,
-	BINGET: 0x68, // h
-	MARK: 0x28, // (
-	NONE: 0x4e, // N
-	BININT: 0x4a, // J
-	BININT1: 0x4b,
-	BININT2: 0x4d,
-	BINFLOAT: 0X47, // G
-	SHORT_BINUNICODE: 0x8c,
-	BINUNICODE: 0x58, // X
-	APPEND: 0x61, // a
-	APPENDS: 0x65, // e
-	SETITEM: 0x73, // s
-	SETITEMS: 0x75, // u
-	TUPLE1: 0x85,
-	TUPLE2: 0x86,
-	STOP: 0x2e, // .
-	STACK_GLOBAL: 0x93
-}
+module.exports.pickle=require('./pickle.js');
+const opcodes=require('./opcodes.js');
 
 const reduceTypes={
 	'builtins':{
@@ -68,9 +45,7 @@ class State {
 	}
 
 	parse () {
-		let iter=0;
 		while (!this.stopped) {
-			iter++;
 			const opcode = this.buffer[this.position++]
 			const operatorName = operatorNameForOpcode[opcode]
 			if (!operatorName) {
@@ -78,7 +53,6 @@ class State {
 			}
 			operatorName && this[operatorName]()
 		}
-		//return this.stack;
 		return this.stack[0]
 	}
 
@@ -109,6 +83,12 @@ class State {
 
 	MEMOIZE () {
 		this.memos.push(this.stack[this.stack.length - 1])
+	}
+
+	BINPUT(){
+		const value = this.buffer.readUInt8(this.position)
+		this.position += 1
+		this.memos[value]=this.stack[this.stack.length - 1];
 	}
 
 	BINGET () {
@@ -183,7 +163,7 @@ class State {
 			if (value === mark) {
 				break
 			}
-			items.push(value)
+			items.unshift(value)
 		}
 		let last=this.stack.pop();
 		if (!last.concat) last=[last];
