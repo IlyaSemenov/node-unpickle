@@ -9,8 +9,6 @@ describe('Binary test samples', function () {
 	for (const fn of fs.readdirSync(dir)) {
 		it(`Should parse ${fn}`, function () {
 			thisPackage.parse(fs.readFileSync(path.join(dir, fn)));
-
-			///fail2ban\./.test(fn) && console.dir(thisPackage.parse(fs.readFileSync(path.join(dir, fn)))[1]);
 		})
 	}
 })
