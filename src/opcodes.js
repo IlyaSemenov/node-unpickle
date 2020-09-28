@@ -3,7 +3,7 @@ const opcodes = {
   FRAME: 0x95,
   EMPTY_LIST: 0x5d, // ]
   EMPTY_DICT: 0x7d, // }
-  REDUCE:0x52, //R
+  REDUCE: 0x52, // R
   MEMOIZE: 0x94,
   BINGET: 0x68, // h
   MARK: 0x28, // (
@@ -25,4 +25,4 @@ const opcodes = {
   BINPUT: 0x71
 }
 
-module.exports=opcodes;
+module.exports = opcodes
