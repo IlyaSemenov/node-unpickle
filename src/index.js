@@ -14,13 +14,7 @@ const opcodes=require('./opcodes.js');
 
 const reduceTypes={
 	'builtins':{
-		'str':(ar)=>{
-			let ret=[];
-			ar.forEach((val)=>{
-				ret.push(String(val))
-			});
-			return ret.join(', ')
-		}
+		'str': ar => ar.map(String).join(", ")
 	}
 }
 
