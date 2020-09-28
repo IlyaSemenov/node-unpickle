@@ -22,7 +22,7 @@ const opcodes = {
 	TUPLE2: 0x86,
 	STOP: 0x2e, // .
 	STACK_GLOBAL: 0x93,
-  BINPUT: 0x71
+        BINPUT: 0x71
 }
 
 module.exports=opcodes;
