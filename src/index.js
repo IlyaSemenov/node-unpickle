@@ -74,7 +74,7 @@ class State {
 
 	REDUCE () {
 		let val=this.stack.pop();
-		let typeFunc=this.stack.pop();
+		const typeFunc=this.stack.pop();
 		if (typeof(typeFunc)=='function'){
 			val=typeFunc(val);
 		}
