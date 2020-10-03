@@ -6,13 +6,23 @@ This library allows to unpickle data pickled with Python 3.5 (up to pickle proco
 
 ## Installation
 
-Use npm:
+Use npm (or yarn):
 
 ```bash
 npm install unpickle
 ```
 
-## Usage
+The following example unpickles Django session from Redis:
+```js
+import unpickle from 'unpickle';
+
+async function getDjangoSession (sessionId) {
+  const data = await redis.getAsync('django.contrib.sessions.cache' + sessionId)
+  return unpickle(data)
+}
+```
+
+## Usage as CommonJs module
 
 ```js
 const unpickle = require ('unpickle');
@@ -20,22 +30,12 @@ const data = unpickle.parse(<Buffer>);
 const buf = unpickle.dump(data);
 ```
 
-The following example unpickles Django session from Redis:
-
-```js
-const unpickle = require ('unpickle');
-
-async function getDjangoSession (sessionId) {
-  const data = await redis.getAsync('django.contrib.sessions.cache' + sessionId)
-  return unpickle.parse(data)
-}
-```
-
 ## Testing
 
 ```bash
 git clone https://github.com/IlyaSemenov/node-unpickle.git
 cd node-unpickle
+yarn
 npm test
 ```
 

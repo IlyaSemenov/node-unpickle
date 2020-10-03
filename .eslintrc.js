@@ -10,6 +10,13 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 12
   },
-  rules: {
-  }
+  rules: {},
+  overrides: [{
+    files: [
+      "src/index.cjs"
+    ],
+    parserOptions: {
+      sourceType: "script"
+    }
+  }]
 }

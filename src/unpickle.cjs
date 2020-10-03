@@ -1,16 +1,10 @@
-/*
-Modified version of https://github.com/IlyaSemenov/node-unpickle
+const opcodes = require('./opcodes.cjs')
 
-improve fail2ban compatibility
-*/
-
-module.exports.parse = function (buffer) {
+function unpickle (buffer) {
   const state = new State(buffer)
   return state.parse()
 }
-
-module.exports.dump = require('./pickle.js')
-const opcodes = require('./opcodes.js')
+module.exports = unpickle
 
 const reduceTypes = {
   builtins: {

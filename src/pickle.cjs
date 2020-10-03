@@ -1,4 +1,4 @@
-const opcodes = require('./opcodes.js')
+const opcodes = require('./opcodes.cjs')
 
 class State {
   constructor () {

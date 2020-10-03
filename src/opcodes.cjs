@@ -1,4 +1,4 @@
-const opcodes = {
+module.exports = {
   PROTO: 0x80,
   FRAME: 0x95,
   EMPTY_LIST: 0x5d, // ]
@@ -24,5 +24,3 @@ const opcodes = {
   STACK_GLOBAL: 0x93,
   BINPUT: 0x71
 }
-
-module.exports = opcodes

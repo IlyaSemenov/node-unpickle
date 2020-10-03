@@ -1,22 +1,23 @@
+/* global describe, it */
 const fs = require('fs')
 const path = require('path')
-const thisPackage = require('..');
+const cjsPackage = require(path.resolve(__dirname, '..', 'src', 'index.cjs'))
+const chai = require('chai')
+chai.should()
 
-require('./setup')
-
-describe('Binary test samples', function () {
-	const dir = path.resolve(__dirname, 'pickles')
-	for (const fn of fs.readdirSync(dir)) {
-		it(`Should parse ${fn}`, function () {
-			thisPackage.parse(fs.readFileSync(path.join(dir, fn)));
-		})
-	}
+describe('CommonJs parse', function () {
+  const dir = path.resolve(__dirname, 'pickles')
+  for (const fn of fs.readdirSync(dir)) {
+    it(`Should parse ${fn}`, function () {
+      cjsPackage.parse(fs.readFileSync(path.join(dir, fn)))
+    })
+  }
 })
 
-describe('Make pickle from array', function () {
-	it(`Should be equals fail2banCmd.pickle=['set','ansServices','banip','10.152.64.100']`, function () {
-		let etalonBin=fs.readFileSync(path.resolve(__dirname, 'pickles','fail2banCmd.pickle'));
-		let resultBin=thisPackage.dump(['set','ansServices','banip','10.152.64.100']);
-		Buffer.compare(etalonBin, resultBin);
-	});
-});
+describe('CommonJs dump. Make pickle from array', function () {
+  it('Should be equals fail2banCmd.pickle=[\'set\',\'ansServices\',\'banip\',\'10.152.64.100\']', function () {
+    const etalonBin = fs.readFileSync(path.resolve(__dirname, 'pickles', 'fail2banCmd.pickle'))
+    const resultBin = cjsPackage.dump(['set', 'ansServices', 'banip', '10.152.64.100'])
+    Buffer.compare(etalonBin, resultBin)
+  })
+})
