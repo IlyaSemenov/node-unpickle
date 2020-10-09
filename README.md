@@ -12,21 +12,22 @@ Use npm (or yarn):
 npm install unpickle
 ```
 
-## Usage
-
-```js
-const data = unpickle(<Buffer>)
-```
-
 The following example unpickles Django session from Redis:
-
 ```js
-import unpickle from 'unpickle'
+import unpickle from 'unpickle';
 
 async function getDjangoSession (sessionId) {
   const data = await redis.getAsync('django.contrib.sessions.cache' + sessionId)
   return unpickle(data)
 }
+```
+
+## Usage as CommonJs module
+
+```js
+const unpickle = require ('unpickle');
+const data = unpickle.parse(<Buffer>);
+const buf = unpickle.dump(data);
 ```
 
 ## Testing
@@ -43,6 +44,12 @@ npm test
 ```python
 s = b"\x80\x04\x95....."
 import pickle; import pickletools; print(pickle.loads(s)); pickletools.dis(s)
+```
+
+### How to inspect pickle at console
+
+```bash
+python -m pickletools -a -m ./test/pickles/fail2ban.pickle
 ```
 
 ## Contributing

@@ -2,7 +2,7 @@ import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
 
 export default {
-  input: 'src/index.js',
+  input: 'src/unpickle.cjs',
   output: {
     file: 'dist/bundle.umd.js',
     format: 'umd',

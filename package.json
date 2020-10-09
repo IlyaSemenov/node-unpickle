@@ -1,9 +1,15 @@
 {
   "name": "unpickle",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Unpickle Python 3.5 (protocol 4) data",
-  "main": "dist/bundle.umd.js",
-  "module": "src/index.js",
+  "main": "src/index.cjs",
+  "module": "src/index.mjs",
+  "exports": {
+    ".": {
+      "require": "./src/index.cjs",
+      "import": "./dist/bundle.umd.js"
+    }
+  },
   "scripts": {
     "test": "mocha",
     "build": "rollup -c",
@@ -24,15 +30,24 @@
   },
   "homepage": "https://github.com/IlyaSemenov/node-unpickle#readme",
   "devDependencies": {
+    "chai": "^4.1.1",
+    "eslint": "^7.10.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "",
     "babel-core": "^6.26.0",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "chai": "^4.1.1",
-    "mocha": "^3.5.0",
     "rollup": "^0.54.0",
     "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-node-resolve": "^3.0.0"
+  },
+  "dependencies": {
+    "yarn": "^1.22.10"
   }
 }
