@@ -5,10 +5,9 @@
   "main": "src/index.cjs",
   "module": "src/index.mjs",
   "exports": {
-    "package.json": "package.json",
     ".": {
-      "require": "src/index.cjs",
-      "import": "dist/bundle.umd.js"
+      "require": "./src/index.cjs",
+      "import": "./dist/bundle.umd.js"
     }
   },
   "scripts": {
